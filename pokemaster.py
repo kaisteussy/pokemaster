@@ -9,43 +9,64 @@ class Pokemon:
         self.max_health = max_health
         self.pokemon_type = pokemon_type
         self.is_knocked_out = is_knocked_out
+        self.experience = 0
+        self.experience_needed = level * 10
 
     def __repr__(self):
-        return self.name + "\nLevel " + str(self.level) + "\nHealth: " + str(self.health) + "/" + str(
-            self.max_health) + "\nType: " + self.pokemon_type + "\n"
+        return f"{self.name}\nLevel {self.level}\nHealth: {self.health}/{self.max_health}\nType: {self.pokemon_type}\nExperience: {self.experience}/{self.experience_needed} "
 
     def lose_health(self, damage):
-        if self.health - damage != 0:
+        if self.health - damage <= 0:
             self.health -= damage
-            print(self.name + ' lost ' + str(damage) + ' health.\n')
+            print(f"{self.name} lost {damage} health.\n")
         else:
             self.knockout()
 
     def gain_health(self, potion):
         self.health += potion
-        print('Your pokemon gained health: ' + str(potion) + "\n")
+        print(f'Your pokemon gained health: {potion}\n')
 
     def knockout(self):
         self.health = 0
         self.is_knocked_out = True
         print('Knockout!\n')
 
-    def attack(self, pokemon_to_attack):
-        print(self.name + " attacks " + pokemon_to_attack.name + "!")
+    def calculate_damage(self, pokemon_to_attack):
         if self.pokemon_type == 'Fire' and pokemon_to_attack.pokemon_type == 'Grass':
-            pokemon_to_attack.lose_health(self.level * 2)
-        elif self.pokemon_type == 'Grass' and pokemon_to_attack.pokemon_type == 'Fire':
-            pokemon_to_attack.lose_health(self.level * (1 / 2))
-        elif self.pokemon_type == 'Water' and pokemon_to_attack.pokemon_type == 'Fire':
-            pokemon_to_attack.lose_health(self.level * 2)
-        elif self.pokemon_type == 'Water' and pokemon_to_attack.pokemon_type == 'Grass':
-            pokemon_to_attack.lose_health(self.level * (1 / 2))
-        elif self.pokemon_type == 'Grass' and pokemon_to_attack.pokemon_type == 'Water':
-            pokemon_to_attack.lose_health(self.level * 2)
+            return self.level * 2
         elif self.pokemon_type == 'Fire' and pokemon_to_attack.pokemon_type == 'Water':
-            pokemon_to_attack.lose_health(self.level * (1 / 2))
+            return self.level * (1 / 2)
+        elif self.pokemon_type == 'Grass' and pokemon_to_attack.pokemon_type == 'Fire':
+            return self.level * (1 / 2)
+        elif self.pokemon_type == 'Grass' and pokemon_to_attack.pokemon_type == 'Water':
+            return self.level * 2
+        elif self.pokemon_type == 'Water' and pokemon_to_attack.pokemon_type == 'Fire':
+            return self.level * 2
+        elif self.pokemon_type == 'Water' and pokemon_to_attack.pokemon_type == 'Grass':
+            return self.level * (1 / 2)
         else:
-            pokemon_to_attack.lose_health(self.level)
+            return self.level
+
+    def attack(self, pokemon_to_attack):
+        print(f"{self.name} attacks {pokemon_to_attack.name}!")
+        calculated_damage = self.calculate_damage(pokemon_to_attack)
+        pokemon_to_attack.lose_health(calculated_damage)
+        if pokemon_to_attack.is_knocked_out:
+            self.gain_experience(pokemon_to_attack.level)
+
+    def gain_experience(self, experience_gained):
+        self.experience += experience_gained
+        print(f"{self.name} gained {experience_gained} experience\n")
+        if self.experience >= self.experience_needed:
+            self.level_up()
+
+    def level_up(self):
+        print(f'{self.name} leveled up!')
+        self.level += 1
+        self.max_health += 5
+        self.health += 5
+        self.experience = 0
+        self.experience_needed += 5
 
 
 class Trainer:
@@ -55,12 +76,14 @@ class Trainer:
         self.current_pokemon = current_pokemon
         self.bench = bench
         self.inventory = inventory
+        if self.inventory is None:
+            self.inventory = []
 
     def __repr__(self):
-        return f"{self.name}\nPotions: {self.potions} \nActive Pokemon: {self.current_pokemon} \nBench: {self.bench}\n"
+        return f"{self.name}\nPotions: {self.potions} \nActive Pokemon: {self.current_pokemon.name} \nBench: {self.bench}\n"
 
     def add_to_inventory(self, *new_item):
-        print('Item added to inventory!')
+        print('Item added to inventory!\n')
         self.inventory.append(new_item)
 
     def use_potion(self):
@@ -94,25 +117,28 @@ class Trainer:
             self.current_pokemon.attack(trainer_to_attack.current_pokemon)
 
 
-squirtle = Pokemon('Squirtle', 1, 10, 10, 'Water', False)
-bulbasaur = Pokemon('Bulbasaur', 1, 10, 10, 'Grass', False)
-charmander = Pokemon('Charmander', 1, 10, 10, 'Fire', False)
+squirtle = Pokemon('Squirtle', 2, 10, 10, 'Water', False)
+bulbasaur = Pokemon('Bulbasaur', 2, 10, 10, 'Grass', False)
+charmander = Pokemon('Charmander', 2, 10, 10, 'Fire', False)
 eevee = Pokemon('Eevee', 1, 10, 10, 'Normal', False)
 squirtle2 = Pokemon('Squirtle', 1, 10, 10, 'Water', False)
 
+bulbasaur.experience = 9
+print(bulbasaur.experience)
+
 health_potion = items.HealthPotion(2)
-#super_potion = items.Item('Super Potion', 1)
+# super_potion = items.Item('Super Potion', 1)
 
 
 ash_bench = [eevee, charmander]
 blake_bench = [squirtle2]
 
-ash = Trainer('Ash Ketchum', 3, squirtle, bench=ash_bench, inventory=[])
+ash = Trainer('Ash Ketchum', 3, squirtle, bench=ash_bench)
 blake = Trainer('Blake the Trainer', 3, bulbasaur, blake_bench)
-ash.add_to_inventory(health_potion)
+# ash.add_to_inventory(health_potion)
 
-print(ash.inventory)
-print(ash.bench)
+# print(ash.inventory)
+# print(ash.bench)
 
 # print(ash)
 # ash.switch_pokemon(eevee)
@@ -122,12 +148,15 @@ print(ash.bench)
 # blake.switch_pokemon(squirtle2)
 # print(blake)
 
+blake.attack_trainer(ash)
+blake.attack_trainer(ash)
+blake.attack_trainer(ash)
+blake.attack_trainer(ash)
+blake.attack_trainer(ash)
+print(bulbasaur)
+print(squirtle)
 # blake.attack_trainer(ash)
-# blake.attack_trainer(ash)
-# blake.attack_trainer(ash)
-# blake.attack_trainer(ash)
-# blake.attack_trainer(ash)
-# blake.attack_trainer(ash)
+#print(blake)
 # ash.switch_pokemon(charmander)
 # ash.switch_pokemon(charmander)
 # ash.attack_trainer(blake)
