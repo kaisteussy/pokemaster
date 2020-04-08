@@ -1,21 +1,20 @@
-class Item:
-    pass
+class Potion:
+    def __init__(self, name, heal_value):
+        self.name = name
+        self.heal_value = heal_value
+
+    # def use(self):
+    #     pass
 
 
 class HealthPotion:
-    def __init__(self, quantity=1):
-        self.name = 'Health Potion'
-        self.quantity = quantity
-        self.heal_value = 3
+    def __init__(self, name="Health Potion", heal_value=3):
+        #self.trainer = trainer
+        self.name = name
+        self.heal_value = heal_value
 
     def __repr__(self):
-        return f"{self.name}\nRestores 3 health!\nQuantity: {self.quantity}"
-        pass
+        return self.name
 
-    def use_potion(self, pokemon):
-        pokemon.gain_health(self.heal_value)
-        self.quantity -= 1
-
-
-class SuperPotion(HealthPotion):
-    pass
+    # def use(self):
+    #     return self.heal_value

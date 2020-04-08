@@ -1,5 +1,5 @@
 import items
-from items import *
+from items import HealthPotion
 
 
 class Pokemon:
@@ -24,8 +24,8 @@ class Pokemon:
             self.knockout()
 
     def gain_health(self, health_to_be_gained):
-        self.health += health_to_be_gained
-        print(f'{self.name} gained {health_to_be_gained} health!')
+        self.health += health_to_be_gained.heal_value
+        print(f'{self.name} gained {health_to_be_gained.heal_value} health!')
         print(f'{self.name} now has {self.health} health.\n')
 
     def knockout(self):
@@ -72,27 +72,31 @@ class Pokemon:
 
 
 class Trainer:
-    def __init__(self, name, potions, current_pokemon, bench=None):
+    def __init__(self, name, current_pokemon, bench=None):
         self.name = name
-        self.potions = potions
         self.current_pokemon = current_pokemon
         self.bench = bench
         self.inventory = []
 
     def __repr__(self):
-        return f"{self.name}\nPotions: {self.potions} \nActive Pokemon: {self.current_pokemon.name} \nBench: {self.bench}\n"
+        return f"{self.name} \nActive Pokemon: {self.current_pokemon.name} \nBench: {self.bench}\n"
 
     def add_to_inventory(self, new_item):
-        if new_item not in self.inventory:
-            self.inventory.append(new_item)
-            print(f'{new_item.name} added to inventory!\n')
-        else:
-            pass
-#work here
+        self.inventory.append(new_item)
+        print(f'{new_item} added to inventory!\n')
+
+#NEEDS WORK?
     def use_item(self, item_to_use):
-        #if items.item_to_use in self.inventory:
-        print(item_to_use)
-        print("so far")
+        print(f'Using {item_to_use}!')
+        self.current_pokemon.gain_health(self.get_item_from_inventory(item_to_use))
+
+#USE .POP()!
+    def get_item_from_inventory(self, item_to_check):
+        for item in self.inventory:
+            if type(item) == item_to_check:
+                print(f'{item} retrieved from inventory.')
+                return item
+        print("THERE IS NO ITEM")
 
     def switch_pokemon(self, new_pokemon):
         print(self.name + " is switching pokemon...")
@@ -118,6 +122,7 @@ class Trainer:
             self.current_pokemon.attack(trainer_to_attack.current_pokemon)
 
 
+
 squirtle = Pokemon('Squirtle', 2, 10, 10, 'Water', False)
 bulbasaur = Pokemon('Bulbasaur', 2, 10, 10, 'Grass', False)
 charmander = Pokemon('Charmander', 2, 10, 10, 'Fire', False)
@@ -131,14 +136,28 @@ bulbasaur.experience = 9
 ash_bench = [eevee, charmander]
 blake_bench = [squirtle2]
 
-ash = Trainer('Ash Ketchum', 3, squirtle, bench=ash_bench)
-blake = Trainer('Blake the Trainer', 3, bulbasaur, blake_bench)
+ash = Trainer('Ash Ketchum', squirtle, bench=ash_bench)
+blake = Trainer('Blake the Trainer', bulbasaur, blake_bench)
 ash.add_to_inventory(HealthPotion())
+ash.add_to_inventory(HealthPotion())
+ash.add_to_inventory(HealthPotion())
+
+
 
 print(ash.inventory)
 ash.use_item(HealthPotion)
+
+
+ash.inventory.pop()
 print(ash.inventory)
-# print(ash.bench)
+
+
+
+#ash.get_item_from_inventory(HealthPotion)
+# blake.use_item(HealthPotion)
+# print(ash.inventory)
+
+
 
 # print(ash)
 # ash.switch_pokemon(eevee)
@@ -147,7 +166,7 @@ print(ash.inventory)
 # print(blake)
 # blake.switch_pokemon(squirtle2)
 # print(blake)
-
+#
 # blake.attack_trainer(ash)
 # blake.attack_trainer(ash)
 # blake.attack_trainer(ash)
@@ -166,16 +185,3 @@ print(ash.inventory)
 # ash.attack_trainer(blake)
 # blake.switch_pokemon(squirtle)
 # blake.attack_trainer(ash)
-# blake.use_potion()
-
-# print(ash.current_pokemon.health)
-
-
-# print(squirtle)
-# squirtle.attack(bulbasaur)
-
-# print(bulbasaur)
-
-# print(ash)
-# print(blake.current_pokemon)
-# blake.use_potion()
